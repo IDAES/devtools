@@ -17,6 +17,7 @@ setup(
         "pydantic",
         "rich",
         "typer",
+        "astroid==2.12.9",
     ],
     entry_points={
         "console_scripts": [
