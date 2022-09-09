@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         python-version:
           - '3.8'
@@ -26,7 +26,7 @@ jobs:
           - client-package: idaes
             client-package-pip-target: idaes-pse @ https://github.com/IDAES/idaes-pse/archive/main.zip
           - client-package: watertap
-            client-package-pip-target: watertap @ https://github.com/watertap-org/watertap/archive/main.zip
+            client-package-pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/main.zip
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
