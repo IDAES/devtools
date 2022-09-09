@@ -4,7 +4,7 @@
 
 ```console
 conda create --name idaes-devtools python=3.9 && conda activate idaes-devtools
-pip install "idaes-devtools @ https://github.com/IDAES/devtools"
+pip install "idaes-devtools @ https://github.com/IDAES/devtools/archive/main.zip"
 idaes-devtools
 ```
 
