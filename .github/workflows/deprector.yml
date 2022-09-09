@@ -25,8 +25,12 @@ jobs:
         include:
           - client-package: idaes
             client-package-pip-target: idaes-pse @ https://github.com/IDAES/idaes-pse/archive/main.zip
+            collect-flags: -- -m unit
+            analyze-flags: --callsite-registry idaes
           - client-package: watertap
             client-package-pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/main.zip
+            collect-flags: ""
+            analyze-flags: ""
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
@@ -44,10 +48,10 @@ jobs:
           idaes get-extensions --verbose --extra petsc
       - name: Run collect
         run: |
-          deprector collect ${{ matrix.client-package }}
+          deprector collect ${{ matrix.client-package }} ${{ matrix.collect-flags }}
       - name: Run analyze
         run: |
-          deprector analyze ${{ matrix.client-package }}
+          deprector analyze ${{ matrix.client-package }} ${{ matrix.analyze-flags }}
       - uses: actions/upload-artifact@v3
         with:
           name: deprector-${{ matrix.client-package }}-${{ matrix.python-version }}
