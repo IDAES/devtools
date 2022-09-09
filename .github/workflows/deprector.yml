@@ -22,6 +22,11 @@ jobs:
         client-package:
           - idaes
           - watertap
+        include:
+          - client-package: idaes
+            client-package-pip-target: idaes-pse @ https://github.com/IDAES/idaes-pse/archive/main.zip
+          - client-package: watertap
+            client-package-pip-target: watertap @ https://github.com/watertap-org/watertap/archive/main.zip
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
@@ -31,9 +36,12 @@ jobs:
         run: |
           pip install --progress-bar off setuptools wheel .
           deprector --help
-      - name: Install client package (${{ matrix.client-package }})
+      - name: Install client package (${{ matrix.client-package-pip-target }})
         run: |
-          pip install --progress-bar off ${{ matrix.client-package }}
+          pip install --progress-bar off "${{ matrix.client-package-pip-target }}"
+      - name: Install IDAES extensions
+        run: |
+          idaes get-extensions --verbose --extra petsc
       - name: Run collect
         run: |
           deprector collect ${{ matrix.client-package }}
