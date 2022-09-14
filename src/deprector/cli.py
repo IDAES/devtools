@@ -6,7 +6,11 @@ from typing import (
 
 import typer
 import pytest
+import rich
 
+from . import (
+    api,
+)
 from .pytest_.plugin import (
     Collect,
     Analyze,
@@ -20,7 +24,7 @@ app = typer.Typer(
 
 
 PYTEST_OPTS = [
-    "-o", "cli_log=1",
+    # "-o", "cli_log=1",
 ]
 
 
@@ -87,3 +91,24 @@ def analyze(
         pytest_args,
         plugins=[plugin]
     )
+
+
+@app.command()
+def list_function_calls(
+        package_name: str,
+        function_name: Optional[List[str]] = typer.Option(
+            None,
+            "-f",
+            "--function-name",
+        ),
+        check: bool = False,
+    ):
+    found = api.get_function_calls_in_source(
+        package_name,
+        list(function_name),
+    )
+    if check:
+        raise typer.Exit(
+            0 if not found else 1
+        )
+    rich.print(found)

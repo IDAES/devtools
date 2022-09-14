@@ -35,6 +35,9 @@ jobs:
         run: |
           pip install "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/${{ matrix.ref }}.zip"
           idaes get-extensions --verbose --extra petsc
+      - name: List deprecation function calls in source
+        run: |
+          deprector list-function-calls idaes --function-name deprecation_warning --function-name relocated_module_attribute
       - name: Run collect
         run: |
           deprector collect idaes -- -m unit
