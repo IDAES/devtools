@@ -18,6 +18,7 @@ setup(
         "rich",
         "typer",
         "astroid==2.12.9",
+        "ast-compat ; python_version < '3.9' ",
     ],
     entry_points={
         "console_scripts": [
