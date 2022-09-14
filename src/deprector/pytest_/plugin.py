@@ -37,8 +37,9 @@ _logger = logging.getLogger(__name__)
 @dataclass
 class Collected:
     
-    root_ipath: Optional[module.IPath] = None
+    package: Optional[module.Name] = None
     records: List[depr.Record] = field(default_factory=list)
+    paths: List[Path] = field(default_factory=list)
 
     def __bool__(self) -> bool:
         return bool(self.records)
@@ -63,6 +64,10 @@ class PluginBase:
         self._session = None
 
 
+class PytestConfigureError(ValueError):
+    pass
+
+
 class Collect(PluginBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,28 +76,29 @@ class Collect(PluginBase):
         self._collector = depr.Collector()
         self._collector.activate()
 
-    def configure(self, root_ipath: module.IPath):
-        _logger.debug("root_ipath set to %s", root_ipath)
+    def configure(self, package: module.Name):
+        _logger.debug("package set to %s", package)
         self._collected = Collected()
-        self._collected.root_ipath = root_ipath
+        self._collected.package = package
 
-        root_fpath = module.get_root_fpath(root_ipath)
-
-        self._collector.register(root_fpath)
-        _logger.debug("registered path %s with collector", root_fpath)
+        paths_to_match = list(package.submodules_search_paths)
+        self._collector.register(*paths_to_match)
+        _logger.debug("registered paths %s with collector", paths_to_match)
         # self._collector = depr.Collector(
         #     root_paths=self._root_fpaths
         # )
         # self._collector.activate()
 
     def pytest_configure(self, config: Config):
-        root_ipaths = []
+        packages = []
         opts = config.option
         if opts.pyargs:
-            root_ipaths = list(opts.file_or_dir)
-            if len(root_ipaths) != 1:
-                raise ValueError(f"--pyargs should be specified exactly once; instead found {root_ipaths}")
-        self.configure(root_ipaths[0])
+            packages = list(opts.file_or_dir)
+            if len(packages) != 1:
+                raise PytestConfigureError(f"--pyargs should be specified exactly once; instead found {packages}")
+        else:
+            raise PytestConfigureError(f"Expected package name given as --pyargs argument, instead got: {config.invocation_params}")
+        self.configure(module.Name(packages[0]))
 
     def store(self, *records: Iterable[depr.Record], **kwargs) -> int:
         added = []
@@ -111,6 +117,9 @@ class Collect(PluginBase):
         text = self._collected.to_json()
         n_written = self._save_path.write_text(text)
         _logger.info("Collected data saved at %d (%d chars)", self._save_path, n_written)
+
+    def pytest_collect_file(self, file_path: Path):
+        self._collected.paths.append(file_path)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtestloop(self, session):

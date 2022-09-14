@@ -1,3 +1,5 @@
+import rich
+
 from . import (
     registry,
     depr,
@@ -7,24 +9,21 @@ from . import (
 def idaes():
     return (
         registry.CallsitesRegistry()
-        .add_deprecator_calls("idaes")
-        .add_module("idaes.core.base.process_block", 98, 125, 140)
+        .add_function_calls(
+            "idaes",
+            function_names=[
+                "deprecation_warning",
+                "relocated_module_attribute",
+                "_process_kwargs",
+            ]
+        )
     )
 
 
 if __name__ == '__main__':
-    matcher = idaes()
-    for src in [
-        depr.Source(
-            filename="/opt/conda/envs/dev-watertap/lib/python3.8/site-packages/idaes/core/base/process_block.py",
-            lineno=123,
-            message="The default argument for the ProcessBlock class is deprecated. Arguments can now be passed directly as keyword arguments."
-        ),
-        depr.Source(
-            filename="/opt/conda/envs/dev-watertap/lib/python3.8/site-packages/idaes/core/base/process_block.py",
-            lineno=125,
-            message="The default argument for the ProcessBlock class is deprecated. Arguments can now be passed directly as keyword arguments."
-        ),
+    for make_matcher in [
+        idaes
     ]:
-        print(src in matcher)
-        # print(src)
+        rich.print(make_matcher)
+        matcher = make_matcher()
+        rich.print(matcher.data)

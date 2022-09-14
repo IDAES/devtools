@@ -3,6 +3,7 @@ import contextlib
 from dataclasses import field, asdict
 import importlib
 import inspect
+import logging
 import sys
 from typing import (
     Callable,
@@ -25,17 +26,25 @@ from . import (
 )
 
 
+_logger = logging.getLogger(__name__)
+
 Message = str
 
 
 @dataclass
 class DeprecatorSpec:
-    module_ipath: module.IPath
+    module: module.Name
     name: str
+    orig_object: object = None
+
+    def load_module(self):
+        mod = importlib.import_module(self.module)
+        self.orig_object = getattr(mod, self.name)
+        return mod
 
 
 DEPRECATOR = DeprecatorSpec(
-    module_ipath="pyomo.common.deprecation",
+    module="pyomo.common.deprecation",
     name="deprecation_warning"
 )
 
@@ -128,8 +137,11 @@ class Collector:
 
     def activate(self):
         for spec in self._deprecators:
-            mod = importlib.import_module(spec.module_ipath)
+            mod = spec.load_module()
+            assert spec.module in sys.modules
+            _logger.debug("orig_object: %s", spec.orig_object)
             self._monkeypatch.setattr(mod, spec.name, self)
+            _logger.debug("getattr(mod, %s): %s", spec.name, getattr(mod, spec.name))
 
     def deactivate(self):
         self._monkeypatch.undo()
@@ -198,46 +210,22 @@ class Collector:
         return to_commit
 
 
-def collect_during_module_import(ipath: module.IPath) -> Tuple[List[Record], List]:
+def collect_during_module_import(module: module.Name) -> Tuple[List[Record], List]:
+    module = module.Name(module)
     errors = []
-    root_fpath = module.get_root_fpath(ipath)
+    root_paths = list(module.submodules_search_paths)
     with Collector(root_paths=[root_fpath]).activated() as dp:
         try:
-            importlib.import_module(ipath)
+            module.import_module()
         except Exception as e:
             errors.append(e)
     return list(dp), errors
 
 
-def get_import_deprs(ipath: module.IPath) -> List[Record]:
+def get_import_deprs(mod: module.Name) -> List[Record]:
     modules_before = list(sys.modules)
-    res, errors = util.run_in_subprocess(collect_during_module_import, args=(ipath,))
+    res, errors = util.run_in_subprocess(collect_during_module_import, args=(mod,))
     modules_after = list(sys.modules)
     added = set(modules_after) - set(modules_before)
     assert ipath not in added
     return res
-
-
-def get_deprecation_sites(*ipaths):
-    module_fpaths = []
-    for ipath in ipaths:
-        fpath = module.get_fpath(ipath)
-        globbable = fpath if fpath.is_dir() else fpath.parent
-        module_fpaths.extend(
-            sorted(globbable.rglob("*.py"))
-        )
-    
-    module_fpaths
-    for fpath in module_fpaths:
-        found = source.get_deprecation_messages(fpath, func_name=DEPRECATOR.name)
-        for msg, lineno in found:
-            yield Source(
-                filename=str(fpath),
-                lineno=int(lineno),
-                message=str(msg),
-            )
-
-
-if __name__ == '__main__':
-    sites = list(get_deprecation_sites("idaes"))
-    print(sites)
