@@ -5,13 +5,13 @@ on:
 
 env:
   PYTEST_ADDOPTS: --color=yes
+  PIP_PROGRESS_BAR: "off"
 
 jobs:
-  
-  cli:
-    name: CLI (${{ matrix.client-package }}/${{ matrix.python-version }})
-    runs-on: ubuntu-latest
 
+  cli:
+    name: CLI (idaes=${{ matrix.ref }}/${{ matrix.python-version }})
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -19,18 +19,9 @@ jobs:
           - '3.8'
           - '3.9'
           - '3.10'
-        client-package:
-          - idaes
-          - watertap
-        include:
-          - client-package: idaes
-            client-package-pip-target: idaes-pse @ https://github.com/IDAES/idaes-pse/archive/main.zip
-            collect-flags: -- -m unit
-            analyze-flags: --callsite-registry idaes
-          - client-package: watertap
-            client-package-pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/main.zip
-            collect-flags: ""
-            analyze-flags: ""
+        ref:
+          - 0309eec
+          - 631015a
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
@@ -38,21 +29,67 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install package (pip)
         run: |
-          pip install --progress-bar off setuptools wheel .
+          pip install setuptools wheel .
           deprector --help
-      - name: Install client package (${{ matrix.client-package-pip-target }})
+      - name: Install IDAES
         run: |
-          pip install --progress-bar off "${{ matrix.client-package-pip-target }}"
-      - name: Install IDAES extensions
-        run: |
+          pip install "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/${{ matrix.ref }}.zip"
           idaes get-extensions --verbose --extra petsc
       - name: Run collect
         run: |
-          deprector collect ${{ matrix.client-package }} ${{ matrix.collect-flags }}
+          deprector collect idaes -- -m unit
       - name: Run analyze
         run: |
-          deprector analyze ${{ matrix.client-package }} ${{ matrix.analyze-flags }}
+          deprector analyze idaes --callsite-registry idaes
       - uses: actions/upload-artifact@v3
         with:
-          name: deprector-${{ matrix.client-package }}-${{ matrix.python-version }}
+          name: deprector-idaes-${{ matrix.python-version }}
+          path: "*.json"
+
+  cli-client:
+    name: CLI (${{ matrix.package }}/idaes=${{ matrix.idaes-ref }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - watertap
+          - dispatches
+        idaes-ref:
+          - 0309eec
+          - 631015a
+        include:
+          - package: watertap
+            pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/main.zip
+            collect-flags: -- -m unit
+            python-version: "3.8"
+          - package: dispatches
+            pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/main.zip
+            collect-flags: ""
+            python-version: "3.7"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package (pip)
+        run: |
+          pip install setuptools wheel .
+          deprector --help
+      - name: Install client package (${{ matrix.pip-target }})
+        run: |
+          pip install "${{ matrix.pip-target }}"
+      - name: Install IDAES (in a separate step to avoid requirements constraint issues)
+        run: |
+          pip install "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/${{ matrix.idaes-ref }}.zip"
+          idaes get-extensions --verbose
+      - name: Run collect
+        run: |
+          deprector collect ${{ matrix.package }} ${{ matrix.collect-flags }}
+      - name: Run analyze
+        run: |
+          deprector analyze ${{ matrix.package }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: deprector-${{ matrix.package }}-${{ matrix.idaes-ref }}-${{ matrix.python-version }}
           path: "*.json"
