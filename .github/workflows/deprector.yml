@@ -84,7 +84,7 @@ jobs:
           - package: dispatches
             pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/main.zip
             collect-flags: ""
-            python-version: "3.7"
+            python-version: "3.8"
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
