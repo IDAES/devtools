@@ -38,6 +38,21 @@ jobs:
       - name: List deprecation function calls in source
         run: |
           deprector list-function-calls idaes --function-name deprecation_warning --function-name relocated_module_attribute
+      - name: Create pytest.ini to silence warnings for unregistered pytest markers
+        run: |
+          cat << 'EOF' > pytest.ini
+          markers =
+              build: test of model build methods
+              cubic_root : test requires the compiled cubic root finder
+              iapws: test requires the compiled IAPWS95 property package
+              initialization: test of initialization methods. These generally require a solver as well
+              solver: test requires a solver
+              ui: tests of an aspect of the ui
+              unit: quick tests that do not require a solver, must run in <2s
+              component: quick tests that may require a solver
+              integration: long duration tests
+              performance: tests for the IDAES performance testing suite
+          EOF
       - name: Run collect
         run: |
           deprector collect idaes -- -m unit
