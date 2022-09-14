@@ -76,12 +76,13 @@ jobs:
           - watertap
           - dispatches
         idaes-ref:
+          - 2.0.0a3
           - 0309eec
           - 631015a
         include:
           - package: watertap
             pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/main.zip
-            collect-flags: -- -m unit
+            collect-flags: ""
             python-version: "3.8"
           - package: dispatches
             pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/main.zip
@@ -101,6 +102,7 @@ jobs:
           pip install "${{ matrix.pip-target }}"
       - name: Install IDAES (in a separate step to avoid requirements constraint issues)
         run: |
+          pip uninstall --yes idaes-pse
           pip install "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/${{ matrix.idaes-ref }}.zip"
           idaes get-extensions --verbose
       - name: Run collect
