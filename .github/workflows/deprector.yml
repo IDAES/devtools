@@ -41,6 +41,7 @@ jobs:
       - name: Create pytest.ini to silence warnings for unregistered pytest markers
         run: |
           cat << 'EOF' > pytest.ini
+          [pytest]
           markers =
               build: test of model build methods
               cubic_root : test requires the compiled cubic root finder
@@ -54,6 +55,7 @@ jobs:
               performance: tests for the IDAES performance testing suite
           EOF
       - name: Run collect
+        if: success()
         run: |
           deprector collect idaes -- -m unit
       - name: Run analyze
