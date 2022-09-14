@@ -131,12 +131,6 @@ class Collect(PluginBase):
             _logger.info("%d items in test session; %d collected records will be saved", n_test_items, len(self._collected))
             self.save()
 
-    # def pytest_pycollect_makemodule(self, module_path: module.FPath):
-    #     ipath = module.get_ipath(module_path, self._root_fpath)
-    #     print(f"collecting imports for {ipath}")
-    #     recs = depr.get_import_deprs(ipath)
-    #     self.store(*recs, provenance={"import": ipath})
-
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_protocol(self, item: pytest.Item, nextitem):
         yield
@@ -160,13 +154,13 @@ class Analyze(PluginBase):
         self._by_file = None
 
     def pytest_configure(self, config):
-        rich.print(config.option)
+        rich.print(config.option.__dict__)
         self.load()
 
     def configure(self, *registry_keys):
         for key in registry_keys:
             reg = api.get_callsites_registry(key)
-            rich.print(reg._paths)
+            rich.print(reg.data)
             self._registries.append(reg)
         self.load()
 
