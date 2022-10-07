@@ -210,13 +210,13 @@ class Collector:
         return to_commit
 
 
-def collect_during_module_import(module: module.Name) -> Tuple[List[Record], List]:
-    module = module.Name(module)
+def collect_during_module_import(mod: module.Name) -> Tuple[List[Record], List]:
+    # mod = module.Name(mod)
     errors = []
-    root_paths = list(module.submodules_search_paths)
-    with Collector(root_paths=[root_fpath]).activated() as dp:
+    root_paths = list(mod.submodules_search_paths or [mod.origin])
+    with Collector(root_paths=root_paths).activated() as dp:
         try:
-            module.import_module()
+            mod.import_module()
         except Exception as e:
             errors.append(e)
     return list(dp), errors
@@ -227,5 +227,5 @@ def get_import_deprs(mod: module.Name) -> List[Record]:
     res, errors = util.run_in_subprocess(collect_during_module_import, args=(mod,))
     modules_after = list(sys.modules)
     added = set(modules_after) - set(modules_before)
-    assert ipath not in added
+    assert mod not in added
     return res

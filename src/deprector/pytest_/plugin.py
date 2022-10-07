@@ -69,9 +69,10 @@ class PytestConfigureError(ValueError):
 
 
 class Collect(PluginBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, import_files: bool = False, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.import_files = import_files
         self._collected = None
         self._collector = depr.Collector()
         self._collector.activate()
@@ -103,9 +104,12 @@ class Collect(PluginBase):
     def store(self, *records: Iterable[depr.Record], **kwargs) -> int:
         added = []
         for rec in records:
-            added.append(
-                replace(rec, **kwargs)
-            )
+            try:
+                to_add = replace(rec, **kwargs)
+            except Exception as e:
+                _logger.exception("Could not add record %s", rec)
+            else:
+                added.append(to_add)
         n_added = len(added)
         self._collected.records.extend(added)
         _logger.debug("%d new records collected (%d total)", n_added, len(self._collected))
@@ -118,8 +122,20 @@ class Collect(PluginBase):
         n_written = self._save_path.write_text(text)
         _logger.info("Collected data saved at %d (%d chars)", self._save_path, n_written)
 
+    def _collect_from_import(self, path: Path):
+        try:
+            mod = module.SourceFile(path).module
+            from_import = depr.get_import_deprs(mod)
+        except Exception as e:
+            _logger.error("Could not collect deprecations while importing %s", file_path)
+        else:
+            rich.print(from_import)
+            self.store(*from_import, provenance={"import": str(mod)})
+
     def pytest_collect_file(self, file_path: Path):
         self._collected.paths.append(file_path)
+        if self.import_files:
+            self._collect_from_import(file_path)
 
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtestloop(self, session):
@@ -212,6 +228,7 @@ class Analyze(PluginBase):
             source_records.append(src_rec)
         if unmatched:
             _logger.warning("%d records could not be matched to a primary source", len(unmatched))
+            rich.print(unmatched)
         return source_records
 
     @pytest.hookimpl(hookwrapper=True)
@@ -219,7 +236,7 @@ class Analyze(PluginBase):
         self._session = session
         yield
 
-    # @pytest.hookimpl(hookwrapper=True)
+    @pytest.hookimpl(tryfirst=True)
     def pytest_collect_file(self, parent, file_path: Path):
         if file_path.suffix in {".py"}:
             records = self[file_path]
@@ -230,9 +247,23 @@ class Analyze(PluginBase):
                 records=records
             )
 
+    def _generate_items_from_paths(self, paths: Iterable[Path]):
+        for file_path in paths:
+            records = self[file_path]
+            yield checks.SourceFileChecks.from_parent(
+                self._session,
+                path=file_path,
+                name=str(file_path),
+                records=records
+            )
+
     def pytest_collection_modifyitems(self, items):
         our_classes = (checks.SourceLine,)
+        items.extend(
+            self._generate_items_from_paths(self._collected.paths)
+        )
         _logger.debug("%d items collected by pytest", len(items))
+        
         items[:] = [
             item for item in items
             if isinstance(item, our_classes)

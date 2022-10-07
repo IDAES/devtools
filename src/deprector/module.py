@@ -21,6 +21,7 @@ from typing import (
     NewType,
     Optional,
     Protocol,
+    Set,
     Tuple,
     Union,
 )
@@ -375,16 +376,16 @@ def _find_matching_syspath(path: Path):
         else:
             return relpath
 
-    found: List[Tuple[SysPath, Path]] = []
+    found: Set[Tuple[SysPath, Path]] = set()
     get_matching = _get_matching_abspath if path.is_absolute() else _get_matching_relpath
 
     for syspath in _get_syspaths(exclude_internal=True, exclude_cwd=True):
         relpath = get_matching(syspath)
         if relpath:
-            found.append((syspath, relpath))
+            found.add((syspath, relpath))
 
     assert len(found) == 1, found
-    return found[0]
+    return found.pop()
 
 
 def _all_identifiers(parts: Iterable[str]) -> bool:
@@ -398,6 +399,8 @@ class SourceFile:
 
     def __new__(cls, path, module=None):
         path = Path(path)
+        if path.suffix not in {"", SOURCE_SUFFIX}:
+            raise ValueError(f"Not a source file: {path}")
         syspath, relpath = _find_matching_syspath(path)
         module_name = Name.from_relpath(relpath)
         if not module:
