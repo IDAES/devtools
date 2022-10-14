@@ -1,0 +1,32 @@
+[build-system]
+requires = [
+    "setuptools >= 64",
+    "setuptools_scm >= 7",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+root = ".."
+
+[project]
+name = "idaes-deprector" 
+readme = "README.md"
+requires-python = ">= 3.8"
+dependencies = [
+    "pytest >= 7",
+    "pydantic",
+    "oyaml",
+    "typer",
+    "rich",
+    "ast-compat ; python_version < '3.9'",
+]
+dynamic = ["version"]
+
+[project.scripts]
+deprector = "deprector.cli:app"
+
+[project.entry-points.pytest11]
+"deprector.collect" = "deprector.pytest_.plugins:collect"
+
+[project.entry-points."deprector.callsites"]
+idaes = "deprector.support:idaes"
