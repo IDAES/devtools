@@ -24,8 +24,5 @@ dynamic = ["version"]
 [project.scripts]
 deprector = "deprector.cli:app"
 
-[project.entry-points.pytest11]
-"deprector.collect" = "deprector.pytest_.plugins:collect"
-
 [project.entry-points."deprector.callsites"]
 idaes = "deprector.support:idaes"
