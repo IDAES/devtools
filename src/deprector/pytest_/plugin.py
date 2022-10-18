@@ -262,7 +262,7 @@ class Analyze(PluginBase):
             )
 
     def pytest_collection_modifyitems(self, items):
-        our_classes = (checks.SourceLine,)
+        our_classes = (checks.SourceLine, checks.SourceFile)
         items.extend(
             self._generate_items_from_paths(self._collected.paths)
         )
