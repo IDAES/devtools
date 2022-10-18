@@ -24,7 +24,6 @@ from .. import (
     report,
     source,
     util,
-    api,
 )
 from . import (
     checks,
@@ -120,7 +119,7 @@ class Collect(PluginBase):
             _logger.warning("Attempting to save empty data")
         text = self._collected.to_json()
         n_written = self._save_path.write_text(text)
-        _logger.info("Collected data saved at %d (%d chars)", self._save_path, n_written)
+        _logger.info("Collected data saved at %s (%d chars)", self._save_path, n_written)
 
     def _collect_from_import(self, path: Path):
         try:
@@ -129,7 +128,7 @@ class Collect(PluginBase):
         except Exception as e:
             _logger.error("Could not collect deprecations while importing %s", file_path)
         else:
-            rich.print(from_import)
+            _logger.debug("collected from importing module %s: %s", mod, from_import)
             self.store(*from_import, provenance={"import": str(mod)})
 
     def pytest_collect_file(self, file_path: Path):
@@ -170,13 +169,17 @@ class Analyze(PluginBase):
         self._by_file = None
 
     def pytest_configure(self, config):
-        rich.print(config.option.__dict__)
+        pytest_opts = dict(config.option.__dict__)
+        if _logger.isEnabledFor(logging.DEBUG):
+            rich.print(pytest_opts)
         self.load()
 
     def configure(self, *registry_keys):
         for key in registry_keys:
             reg = api.get_callsites_registry(key)
-            rich.print(reg.data)
+            _logger.info("%d items loaded from registry key %s", len(reg.data), key)
+            if _logger.isEnabledFor(logging.DEBUG):
+                rich.print(reg.data)
             self._registries.append(reg)
         self.load()
 
@@ -228,7 +231,8 @@ class Analyze(PluginBase):
             source_records.append(src_rec)
         if unmatched:
             _logger.warning("%d records could not be matched to a primary source", len(unmatched))
-            rich.print(unmatched)
+            if _logger.isEnabledFor(logging.DEBUG):
+                rich.print(unmatched)
         return source_records
 
     @pytest.hookimpl(hookwrapper=True)
