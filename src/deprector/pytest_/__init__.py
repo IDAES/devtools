@@ -1,3 +1,3 @@
-from .plugin import Collect
-from .plugin import Analyze
+from .plugins import Collect
+from .plugins import Analyze
 from .run import Deprector

@@ -9,7 +9,7 @@ from typing import (
 import pytest
 
 from . import (
-    plugin,
+    plugins,
 )
 from .. import (
     errors,
@@ -23,8 +23,8 @@ _logger = logging.getLogger(__name__)
 class Deprector:
     package_name: str
     save_path: Path
-    collector: Optional[plugin.Collect] = None
-    analyzer: Optional[plugin.Analyze] = None
+    collector: Optional[plugins.Collect] = None
+    analyzer: Optional[plugins.Analyze] = None
 
     def _pytest_args(self, *args):
         return [
@@ -34,7 +34,7 @@ class Deprector:
 
     def collect(self, *extra_args: List[str]) -> bool:
         if self.collector is None:
-            self.collector = plugin.Collect(save_path=self.save_path)
+            self.collector = plugins.Collect(save_path=self.save_path)
         args = self._pytest_args(*extra_args)
         code = pytest.main(
             args,
@@ -53,7 +53,7 @@ class Deprector:
 
     def analyze(self, *registries: List[str]) -> bool:
         if self.analyzer is None:
-            self.analyzer = plugin.Analyze(save_path=self.save_path)
+            self.analyzer = plugins.Analyze(save_path=self.save_path)
         self.analyzer.configure(*registries)
         args = self._pytest_args()
         code = pytest.main(
