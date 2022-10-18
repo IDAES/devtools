@@ -1,4 +1,4 @@
-name: deprector
+name: Test deprector
 
 on:
   push:
@@ -57,10 +57,10 @@ jobs:
       - name: Run collect
         if: success()
         run: |
-          deprector collect idaes -- -m unit
+          deprector run --step collect idaes -- -m unit
       - name: Run analyze
         run: |
-          deprector analyze idaes --callsite-registry idaes
+          deprector run --step analyze idaes --callsite-registry idaes
       - uses: actions/upload-artifact@v3
         with:
           name: deprector-idaes-${{ matrix.python-version }}
@@ -106,10 +106,10 @@ jobs:
           idaes get-extensions --verbose
       - name: Run collect
         run: |
-          deprector collect ${{ matrix.package }} ${{ matrix.collect-flags }}
+          deprector run --step collect ${{ matrix.package }} ${{ matrix.collect-flags }}
       - name: Run analyze
         run: |
-          deprector analyze ${{ matrix.package }}
+          deprector run --step analyze ${{ matrix.package }}
       - uses: actions/upload-artifact@v3
         with:
           name: deprector-${{ matrix.package }}-${{ matrix.idaes-ref }}-${{ matrix.python-version }}
