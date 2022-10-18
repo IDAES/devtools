@@ -29,7 +29,7 @@ class ExitCode(enum.IntEnum):
 
 
 def _exit_with(code: ExitCode):
-    _logger.info("deprector will now exit with code: %s", code)
+    _logger.info("deprector will now exit with code %s", repr(code))
     raise typer.Exit(int(code))
 
 
