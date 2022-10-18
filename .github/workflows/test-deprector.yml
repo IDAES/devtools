@@ -73,19 +73,29 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - watertap
-          - dispatches
+          - watertap-pre
+          - watertap-post
+          - dispatches-pre
+          - dispatches-post
         idaes-ref:
           - 2.0.0a3
           - 0309eec
           - 631015a
         include:
-          - package: watertap
-            pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/main.zip
+          - package: watertap-pre
+            pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/0.6.0rc0.zip
             collect-flags: ""
             python-version: "3.8"
-          - package: dispatches
-            pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/main.zip
+          - package: watertap-post
+            pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/0.6.0rc1.zip
+            collect-flags: ""
+            python-version: "3.8"
+          - package: dispatches-pre
+            pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/1745d9f.zip
+            collect-flags: ""
+            python-version: "3.8"
+          - package: dispatches-post
+            pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/c57ce9d.zip
             collect-flags: ""
             python-version: "3.8"
     steps:
