@@ -67,12 +67,12 @@ jobs:
           path: "*.json"
 
   cli-client:
-    name: CLI (${{ matrix.package }}/idaes=${{ matrix.idaes-ref }})
+    name: CLI (${{ matrix.codebase }}/idaes=${{ matrix.idaes-ref }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        package:
+        codebase:
           - watertap-pre
           - watertap-post
           - dispatches-pre
@@ -82,19 +82,23 @@ jobs:
           - 0309eec
           - 631015a
         include:
-          - package: watertap-pre
+          - codebase: watertap-pre
+            package: watertap
             pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/0.6.0rc0.zip
             collect-flags: ""
             python-version: "3.8"
-          - package: watertap-post
+          - codebase: watertap-post
+            package: watertap
             pip-target: watertap[testing] @ https://github.com/watertap-org/watertap/archive/0.6.0rc1.zip
             collect-flags: ""
             python-version: "3.8"
-          - package: dispatches-pre
+          - codebase: dispatches-pre
+            package: dispatches
             pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/1745d9f.zip
             collect-flags: ""
             python-version: "3.8"
-          - package: dispatches-post
+          - codebase: dispatches-post
+            package: dispatches
             pip-target: dispatches @ https://github.com/gmlc-dispatches/dispatches/archive/c57ce9d.zip
             collect-flags: ""
             python-version: "3.8"
@@ -122,5 +126,5 @@ jobs:
           deprector run --step analyze ${{ matrix.package }}
       - uses: actions/upload-artifact@v3
         with:
-          name: deprector-${{ matrix.package }}-${{ matrix.idaes-ref }}-${{ matrix.python-version }}
+          name: deprector-${{ matrix.codebase }}-${{ matrix.idaes-ref }}-${{ matrix.python-version }}
           path: "*.json"
