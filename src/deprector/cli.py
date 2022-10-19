@@ -21,15 +21,18 @@ _logger = logging.getLogger(__name__)
 
 
 class ExitCode(enum.IntEnum):
-    ZERO_DETECTED = 0
-    DETECTED = 1
+    OK = 0
+    DEPRECATIONS_DETECTED = 1
     COLLECT_ERROR = 2
     ANALYZE_ERROR = 3
     OTHER_ERROR = 4
 
+    def __str__(self):
+        return repr(self)
+
 
 def _exit_with(code: ExitCode):
-    _logger.info("deprector will now exit with code %s", repr(code))
+    _logger.info("deprector will now exit with code %s", code)
     raise typer.Exit(int(code))
 
 
@@ -84,6 +87,10 @@ def run(
         "--registry",
         "--callsite-registry",
     ),
+    pass_if_detected: bool = typer.Option(
+        False,
+        help=f"If True, the run will exit with {ExitCode.OK} instead of {ExitCode.DEPRECATIONS_DETECTED}"
+    )
 ):
     _config_logging(verbose=verbose)
     runner = pytest_.Deprector(
@@ -92,6 +99,8 @@ def run(
     )
     steps_to_run = set(step)
     results = {}
+    exit_code_if_detected = ExitCode.OK if pass_if_detected else ExitCode.DEPRECATIONS_DETECTED
+    _logger.info("If deprecations are detected, this run will exit with %s", exit_code_if_detected)
     try:
         if Step.collect in steps_to_run:
             _logger.info("Running step 'collect'")
@@ -111,15 +120,15 @@ def run(
 
     if Step.analyze not in results:
         _logger.info("Run complete without step 'analyze'")
-        _exit_with(0)
+        _exit_with(ExitCode.OK)
 
     any_detected = results[Step.analyze]
     if any_detected:
         _logger.info("One or more deprecations detected")
-        _exit_with(ExitCode.DETECTED)
+        _exit_with(exit_code_if_detected)
     else:
         _logger.info("No deprecations detected")
-        _exit_with(ExitCode.ZERO_DETECTED)
+        _exit_with(ExitCode.OK)
 
 
 @app.command()
