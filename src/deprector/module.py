@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, field
+from functools import lru_cache
 import importlib
 from importlib.machinery import (
     ModuleSpec,
@@ -42,7 +43,7 @@ NAME_SEPARATOR = "."
 SOURCE_SUFFIX = ".py"
 
 
-def _get_internal_syspaths():
+def _get_internal_syspaths() -> List[Path]:
     base = Path(os.__file__).parent
     assert base.is_dir()
     return [
@@ -55,19 +56,52 @@ def _get_internal_syspaths():
 _INTERNAL_SYSPATHS = frozenset(_get_internal_syspaths())
 
 
+@lru_cache
+def _get_startup_sys_path() -> List[str]:
+    "Use this instead of sys.path since sys.path can be modified by e.g. pytest"
 
+    from subprocess import check_output
+    import json
+
+    args = [
+        sys.executable,
+        "-c", "import sys; import json; print(json.dumps(sys.path))",
+    ]
+    out = check_output(args, text=True)
+    return json.loads(out.strip())
+
+
+def _compare_with_current_sys_path(reference_sys_path: List[str]):
+    ref = list(reference_sys_path)
+    added = set(sys.path) - set(ref)
+    if added:
+        _logger.info(
+            "The current sys.path has entries that are not present at startup: %s. "
+            "This is likely due to pytest and is considered normal. "
+            "The extra entries will be ignored by the functionality in the %s module.",
+            sorted(added),
+            __name__,
+        )
+
+
+@lru_cache
 def _get_syspaths(
         exclude_internal: bool = True,
         exclude_cwd: bool = True,
-    ):
-    for path in sys.path:
+    ) -> List[Path]:
+    orig_syspaths = list(_get_startup_sys_path())
+    _compare_with_current_sys_path(orig_syspaths)
+
+    syspaths = []
+    for path in orig_syspaths:
         path = Path(path)
         if not path.is_dir(): continue
         if exclude_cwd and path == Path():
             continue
         if exclude_internal and path in _INTERNAL_SYSPATHS:
             continue
-        yield path
+        syspaths.append(path)
+    return syspaths
 
 
 def _spec_from_path(path) -> ModuleSpec:
@@ -378,13 +412,13 @@ def _find_matching_syspath(path: Path):
 
     found: Set[Tuple[SysPath, Path]] = set()
     get_matching = _get_matching_abspath if path.is_absolute() else _get_matching_relpath
-
-    for syspath in _get_syspaths(exclude_internal=True, exclude_cwd=True):
+    syspaths = list(_get_syspaths(exclude_internal=True, exclude_cwd=True))
+    for syspath in syspaths:
         relpath = get_matching(syspath)
         if relpath:
             found.add((syspath, relpath))
 
-    assert len(found) == 1, found
+    assert len(found) == 1, f"Expected 1 found for {path}, instead found {found}"
     return found.pop()
 
 
