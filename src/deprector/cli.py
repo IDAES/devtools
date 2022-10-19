@@ -91,27 +91,35 @@ def run(
         save_path=save_path,
     )
     steps_to_run = set(step)
+    results = {}
     try:
         if Step.collect in steps_to_run:
-            any_failure = runner.collect()
+            _logger.info("Running step 'collect'")
+            results[Step.collect] = runner.collect()
         if Step.analyze in steps_to_run:
-            any_detected = runner.analyze()
+            _logger.info("Running step 'analyze'")
+            results[Step.analyze] = runner.analyze()
     except errors.CollectError:
-        _logger.exception("Error during collect phase")
+        _logger.exception("Error during 'collect' step")
         _exit_with(ExitCode.COLLECT_ERROR)
     except errors.AnalyzeError:
-        _logger.exception("Error during analyze phase")
+        _logger.exception("Error during 'analyze' step")
         _exit_with(ExitCode.ANALYZE_ERROR)
     except Exception as e:
         _logger.exception("An unspecified error occurred")
         _exit_with(ExitCode.OTHER_ERROR)
+
+    if Step.analyze not in results:
+        _logger.info("Run complete without step 'analyze'")
+        _exit_with(0)
+
+    any_detected = results[Step.analyze]
+    if any_detected:
+        _logger.info("One or more deprecations detected")
+        _exit_with(ExitCode.DETECTED)
     else:
-        if any_detected:
-            _logger.info("One or more deprecations detected")
-            _exit_with(ExitCode.DETECTED)
-        else:
-            _logger.info("No deprecations detected")
-            _exit_with(ExitCode.ZERO_DETECTED)
+        _logger.info("No deprecations detected")
+        _exit_with(ExitCode.ZERO_DETECTED)
 
 
 @app.command()
