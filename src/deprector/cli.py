@@ -99,8 +99,6 @@ def run(
     )
     steps_to_run = set(step)
     results = {}
-    exit_code_if_detected = ExitCode.OK if pass_if_detected else ExitCode.DEPRECATIONS_DETECTED
-    _logger.info("If deprecations are detected, this run will exit with %s", exit_code_if_detected)
     try:
         if Step.collect in steps_to_run:
             _logger.info("Running step 'collect'")
@@ -121,6 +119,9 @@ def run(
     if Step.analyze not in results:
         _logger.info("Run complete without step 'analyze'")
         _exit_with(ExitCode.OK)
+
+    exit_code_if_detected = ExitCode.OK if pass_if_detected else ExitCode.DEPRECATIONS_DETECTED
+    _logger.info("If deprecations are detected, this run will exit with %s", exit_code_if_detected)
 
     any_detected = results[Step.analyze]
     if any_detected:
