@@ -24,6 +24,7 @@ from .. import (
     report,
     source,
     util,
+    api,
 )
 from . import (
     checks,

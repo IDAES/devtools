@@ -95,10 +95,10 @@ def run(
     try:
         if Step.collect in steps_to_run:
             _logger.info("Running step 'collect'")
-            results[Step.collect] = runner.collect()
+            results[Step.collect] = runner.collect(*pytest_args)
         if Step.analyze in steps_to_run:
             _logger.info("Running step 'analyze'")
-            results[Step.analyze] = runner.analyze()
+            results[Step.analyze] = runner.analyze(*registry)
     except errors.CollectError:
         _logger.exception("Error during 'collect' step")
         _exit_with(ExitCode.COLLECT_ERROR)
