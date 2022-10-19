@@ -104,16 +104,6 @@ def _get_syspaths(
     return syspaths
 
 
-def _spec_from_path(path) -> ModuleSpec:
-    if path.is_absolute():
-        relpath = _infer_relpath(path)
-    else:
-        relpath = path
-
-    root_name = path.parts[0]
-    return importlib.util.find_spec(root_name)
-
-
 class PureName(str):
     "pathlib.Path-lib manipulation for module names"
     Parts = Tuple[str, ...]
@@ -313,25 +303,6 @@ class ImportlessFinder(importlib.abc.MetaPathFinder):
             self._spec_cache,
         ]:
             d.clear()
-
-
-def _get_spec(name: PureName, parent_spec: ModuleSpec = None):
-    locations = None if parent_spec is None else parent_spec.submodule_search_locations
-    return PathFinder.find_spec(str(name), path=locations)
-    # return PathFinder.find_spec(name, path=locations)
-
-
-def _find_spec(name: PureName):
-    parent_spec = None
-    assert not isinstance(name, Name)
-    for n in name.lineage:
-        # print(n)
-        spec = _get_spec(n, parent_spec=parent_spec)
-        if n != name and spec is None:
-            # raise ModuleSpecNotFound(n, name=str(n))
-            raise ModuleSpecNotFound(n, name=n)
-        parent_spec = spec
-    return spec
 
 
 _FINDER = ImportlessFinder()
