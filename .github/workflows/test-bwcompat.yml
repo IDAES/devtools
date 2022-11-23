@@ -32,9 +32,13 @@ jobs:
           pip show idaes-bwcompat
       - name: Install IDAES
         run: |
-          pip install "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/${{ matrix.ref }}.zip"
+          pip install wheel "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/${{ matrix.ref }}.zip"
           idaes get-extensions --verbose
           pip show idaes-pse
       - name: Collect module objects
         run: |
           python -m bwcompat.collect.module_objects idaes
+      - uses: actions/upload-artifact@v3
+        with:
+          name: bwcompat-collect-idaes-${{ matrix.ref }}-${{ matrix.python-version }}
+          path: "*.json"
