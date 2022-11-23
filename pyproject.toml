@@ -1,0 +1,22 @@
+[build-system]
+requires = [
+    "setuptools >= 64",
+    "setuptools_scm >= 7",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+
+[project]
+name = "idaes-bwcompat" 
+readme = "README.md"
+requires-python = ">= 3.8"
+dependencies = [
+    "pytest",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+testing = [
+    "pytest >= 7",
+]
