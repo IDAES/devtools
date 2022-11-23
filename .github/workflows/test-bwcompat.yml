@@ -60,6 +60,7 @@ jobs:
         verify-ref:
           - '1.13.0'
           - '2.0.0a3'
+          - 'f63b5b3'  # main after merging #1025
         collect-ref:
           - '1.13.0'
     steps:
