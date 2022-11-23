@@ -32,7 +32,7 @@ jobs:
           pip show idaes-bwcompat
       - name: Install IDAES
         run: |
-          pip install "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/refs/${{ matrix.ref }}.zip"
+          pip install "idaes-pse @ https://github.com/IDAES/idaes-pse/archive/${{ matrix.ref }}.zip"
           idaes get-extensions --verbose
           pip show idaes-pse
       - name: Collect module objects
