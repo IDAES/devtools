@@ -114,7 +114,7 @@ class _ModuleGetattr:
 
 
 @dataclass
-class ProxyModuleAttrsPatcher(base.Patcher, _MonkeypatchMixin):
+class ProxyModuleAttrsPatcher(_MonkeypatchMixin, base.Patcher):
     directives: Mapping[str, List[ProxyModuleAttr]] = field(default_factory=dict)
 
     def populate(self, registry: base.Registry, **kwargs):
@@ -151,7 +151,7 @@ class ProxyModuleAttrsPatcher(base.Patcher, _MonkeypatchMixin):
 
 
 @dataclass
-class OverwriteAttrsPatcher(base.Patcher, _MonkeypatchMixin):
+class OverwriteAttrsPatcher(_MonkeypatchMixin, base.Patcher):
     directives: List[OverwriteModuleAttr] = field(default_factory=list)
 
     def populate(self, registry: base.Registry):

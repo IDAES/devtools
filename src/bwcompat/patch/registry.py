@@ -91,6 +91,9 @@ class Registry:
     def __iter__(self):
         return iter(self._directives)
 
+    def __len__(self):
+        return len(self._directives)
+
     def select(self, key):
         if isinstance(key, type):
             selector = lambda x: isinstance(x, key)

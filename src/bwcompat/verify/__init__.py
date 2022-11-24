@@ -2,6 +2,7 @@ from collections import defaultdict
 from dataclasses import (
     dataclass,
 )
+import fnmatch
 import json
 import importlib
 
@@ -78,16 +79,40 @@ class ImportablesFile(pytest.File):
                 yield ModuleImportFrom.from_parent(name=str(target), target=target, parent=self)
 
 
-@dataclass(unsafe_hash=True)
-class ImportablesPlugin:
-    file_name: str = "importables.json"
+class ActivateRegistry:
 
     def pytest_addoption(self, parser):
-        parser.addoption("--bwcompat-importables", dest="bwcompat_importables_filename", default=self.file_name)
+        parser.addoption(
+            "--bwcompat-registry",
+            dest="bwcompat_registry",
+            default=None
+        )
 
     def pytest_configure(self, config):
-        self.file_name = config.getoption("bwcompat_importables_filename")
+        self.registry = config.getoption("bwcompat_registry")
+        if self.registry:
+            from bwcompat.patch import load_registry
+
+            self.registry = load_registry(self.registry)
+            self.registry.activate()
+
+    def pytest_unconfigure(self):
+        if self.registry:
+            self.registry.deactivate()
+
+
+class TestImportables:
+
+    def pytest_addoption(self, parser):
+        parser.addoption(
+            "--bwcompat-importables",
+            dest="bwcompat_importables_filename",
+            default=""
+        )
+
+    def pytest_configure(self, config):
+        self.filename = config.getoption("bwcompat_importables_filename")
 
     def pytest_collect_file(self, file_path, parent):
-        if file_path.name == self.file_name:
+        if fnmatch.fnmatch(file_path.name, self.filename):
             return ImportablesFile.from_parent(path=file_path, parent=parent)

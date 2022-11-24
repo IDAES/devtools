@@ -22,3 +22,7 @@ testing = [
 ]
 [project.entry-points."bwcompat.registries"]
 idaes-v1 = "_idaes_v1_compat:registry"
+
+[project.entry-points.pytest11]
+bwcompat-importables = "bwcompat.verify.plugins:test_importables"
+bwcompat-activate = "bwcompat.verify.plugins:activate_registry"
