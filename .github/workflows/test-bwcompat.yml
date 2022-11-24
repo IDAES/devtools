@@ -48,7 +48,7 @@ jobs:
           path: "*.json"
 
   verify:
-    name: Verify (idaes=${{ matrix.verify-ref }}<-${{ matrix.collect-ref }}/${{ matrix.python-version }})
+    name: Verify (registry=${{ matrix.registry }}, idaes=${{ matrix.verify-ref }}<-${{ matrix.collect-ref }}/${{ matrix.python-version }})
     runs-on: ubuntu-latest
     needs: collect
     strategy:
@@ -63,6 +63,14 @@ jobs:
           - 'f63b5b3'  # main after merging #1025
         collect-ref:
           - '1.13.0'
+        registry:
+          - "idaes-v1"
+          - "none"
+        include:
+          - registry: "idaes-v1"
+            extra-flags: "--bwcompat-registry=idaes-v1"
+          - registry: "none"
+            extra-flags: ""
     steps:
       - uses: actions/setup-python@v4
         with:
@@ -83,4 +91,4 @@ jobs:
       - name: Run bwcompat verify
         run: |
           ls -lah *
-          python -m bwcompat.verify *.json
+          python -m bwcompat.verify *.json ${{ matrix.extra-flags }}
