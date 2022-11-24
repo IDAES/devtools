@@ -20,3 +20,5 @@ dynamic = ["version"]
 testing = [
     "pytest >= 7",
 ]
+[project.entry-points."bwcompat.registries"]
+idaes-v1 = "_idaes_v1_compat:registry"
