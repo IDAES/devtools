@@ -147,4 +147,4 @@ def _from_entry_point(name: str, group_name="bwcompat.registries"):
         ep = by_name[name]
         return ep.load()
     except KeyError:
-        raise LookupError(f"Entry point name {name} not found within {group}. Available: {list(by_name)}")
+        raise LookupError(f"Entry point name {name} not found within {group_name}. Available: {list(by_name)}")
