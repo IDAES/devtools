@@ -97,9 +97,8 @@ registry.add([
 
 
 registry.enable(
-    patchers.ProxyModuleAttrsPatcher(),
+    patchers.ModuleAttrsPatcher(),
     patchers.ProxyModulePatcher(),
-    patchers.OverwriteAttrsPatcher(),
 )
 
 

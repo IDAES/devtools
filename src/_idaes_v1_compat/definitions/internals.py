@@ -17,7 +17,7 @@ def _process_kwargs_supporting_default(o, kwargs):
     if _default is not None:
         deprecation_warning(
             "The default argument for the ProcessBlock class is deprecated. "
-            "Arguments can now be passed directly as keyword arguments."
+            "Arguments must now be passed directly as keyword arguments."
         )
     _block_data_config_default = _default
     _pyomo_kwargs = {}
@@ -49,5 +49,3 @@ def register_convergence_class_with_disambiguation(name):
         return cls
 
     return _register_convergence_class
-
-

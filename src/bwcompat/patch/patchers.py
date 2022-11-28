@@ -14,6 +14,7 @@ from typing import (
     Callable,
     Container,
     Dict,
+    Iterable,
     List,
     Mapping,
     Optional,
@@ -24,6 +25,7 @@ from types import (
 
 from .directives import (
     ProxyModule,
+    ModuleAttr,
     ProxyModuleAttr,
     OverwriteModuleAttr,
     get_attribute_value,
@@ -166,3 +168,61 @@ class OverwriteAttrsPatcher(_MonkeypatchMixin, base.Patcher):
             hooks.on_activation(drc)
             attr_value = get_attribute_value(drc.replacement, directive=drc)
             self.setattr_(f"{drc.module}.{drc.name}", attr_value, raising=False)
+
+
+@dataclass
+class _ModuleAttrsHandler:
+    module: str
+    directives: Mapping[str, ModuleAttr] = field(default_factory=dict)
+
+    def __getitem__(self, key):
+        return self.directives[key]
+
+    @property
+    def proxies(self) -> Iterable[str]:
+        return [name for name, drc in self.directives.items() if isinstance(drc, ProxyModuleAttr)]
+
+    @property
+    def overwrites(self) -> Iterable[str]:
+        return [name for name, drc in self.directives.items() if isinstance(drc, OverwriteModuleAttr)]
+
+    def __call__(self, attr_name):
+        try:
+            directive = self[attr_name]
+        except KeyError:
+            raise AttributeError(attr_name)
+
+        hooks.on_activation(directive)
+        return get_attribute_value(directive.replacement, directive=directive)
+
+
+@dataclass
+class ModuleAttrsPatcher(_MonkeypatchMixin, base.Patcher):
+    handlers = Mapping[str, _ModuleAttrsHandler]
+
+    def populate(self, registry: base.Registry):
+        self.handlers = {}
+        for module, directives in dict(registry.by_module(ModuleAttr)).items():
+            by_name = {}
+            for drc in directives:
+                attr_name = drc.name
+                if attr_name in by_name:
+                    raise ValueError(f"Duplicate directive for module {module}, attribute {attr_name}: {drc}")
+                else:
+                    by_name[attr_name] = drc
+            self.handlers[module] = _ModuleAttrsHandler(module, directives=by_name)
+
+    def install(self):
+        def _patched_exec_module(loader: importlib.abc.Loader, module: ModuleType):
+            super(type(loader), loader).exec_module(module)
+            handler = self.handlers.get(module.__name__, None)
+            if handler is None:
+                return
+
+            for attr_name in handler.overwrites:
+                attr_val = handler(attr_name)
+                self.setattr_(module, attr_name, attr_val, raising=True)
+            if handler.proxies:
+                self.setattr_(module, "__getattr__", handler, raising=False)
+
+        self.setattr_("_frozen_importlib_external.SourceFileLoader.exec_module", _patched_exec_module)

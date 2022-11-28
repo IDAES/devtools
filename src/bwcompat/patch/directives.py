@@ -49,7 +49,7 @@ class ProxyModule(base.Directive):
 
 
 @dataclass
-class ProxyModuleAttr(base.Directive):
+class ModuleAttr(base.Directive):
     module: str
     name: str
     replacement: Any
@@ -64,6 +64,10 @@ class ProxyModuleAttr(base.Directive):
                 _logger.debug("Unable to parse %s as entrypoint-like: %s", self.replacement, repr(err))
             else:
                 self.replacement = parsed
+
+
+@dataclass
+class ProxyModuleAttr(ModuleAttr):
 
     @classmethod
     def with_no_replacement(cls, spec: dict, **kwargs) -> list:
@@ -98,11 +102,8 @@ class ProxyModuleAttr(base.Directive):
         ]
 
 @dataclass
-class OverwriteModuleAttr(base.Directive):
-    module: str
-    name: str
-    replacement: Any
-    origin: Any = None
+class OverwriteModuleAttr(ModuleAttr):
+    pass
 
 
 def _module_join(*parts, sep=".") -> str:
