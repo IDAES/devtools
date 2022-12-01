@@ -155,7 +155,7 @@ class Collector:
         finally:
             self.deactivate()
 
-    def __call__(self, msg: str, *args, **kwargs):
+    def __call__(self, msg: str, *args, calling_frame=None, **kwargs):
         rec = Record(
             message=str(msg).strip(),
             args=args,
