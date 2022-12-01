@@ -30,7 +30,7 @@ core_util = ProxyModuleAttr.for_modules({
         "PhaseType": "idaes.core.base.phases:PhaseType"
     },
     "idaes.core.util.initialization": {
-        "FlowsheetBlock": "idaes.core.base:FlowsheetBlock"
+        "FlowsheetBlock": "idaes.core.base.flowsheet_model:FlowsheetBlock",
     },
     "idaes.core.util.dyn_utils": {
         "is_implicitly_indexed_by": None,
@@ -50,6 +50,7 @@ core_util = ProxyModuleAttr.for_modules({
     },
     "idaes.core.util.testing": {
         "default_solver": "idaes.core.solvers:get_solver",
+        "get_default_solver": "idaes.core.solvers:get_solver",
     },
 })
 
@@ -497,7 +498,7 @@ unused_imports= ProxyModuleAttr.for_modules({
     "idaes.generic_models.properties.core.examples.HC_PR_vap": {
         "LiquidPhase":  "idaes.core:LiquidPhase",
     },
-    "daes.generic_models.properties.core.state_definitions.FTPx": {
+    "idaes.generic_models.properties.core.state_definitions.FTPx": {
         "UserModelError": "idaes.core.util.exceptions:UserModelError",
     },
     "idaes.generic_models.properties.cubic_eos.cubic_prop_pack": {
@@ -520,7 +521,7 @@ unused_imports= ProxyModuleAttr.for_modules({
     },
     "idaes.power_generation.flowsheets.supercritical_power_plant.SCPC_full_plant": {
         "delta_temperature_underwood_callback":
-            "idaes.models.until_models.heat_exchanger:delta_temperature_underwood_callback",
+            "idaes.models.unit_models.heat_exchanger:delta_temperature_underwood_callback",
         "ThermodynamicAssumption": "idaes.models.unit_models.pressure_changer:ThermodynamicAssumption",
     },
     "idaes.power_generation.flowsheets.supercritical_steam_cycle": {
