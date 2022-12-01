@@ -504,7 +504,7 @@ unused_imports= ProxyModuleAttr.for_modules({
         "functions_lib": None,
     },
     "idaes.generic_models.unit_models.column_models.condenser": {
-        "MomentumBalanceType": "idaes.core.MomentumBalanceType",
+        "MomentumBalanceType": "idaes.core:MomentumBalanceType",
     },
     "idaes.generic_models.unit_models.column_models.tray_column": {
         "InitializationError": "idaes.core.util.exceptions:InitializationError",
@@ -521,15 +521,15 @@ unused_imports= ProxyModuleAttr.for_modules({
     "idaes.power_generation.flowsheets.supercritical_power_plant.SCPC_full_plant": {
         "delta_temperature_underwood_callback":
             "idaes.models.until_models.heat_exchanger:delta_temperature_underwood_callback",
-        "ThermodynamicAssumption": "idaes.models.until_models.pressure_changer:ThermodynamicAssumption",
+        "ThermodynamicAssumption": "idaes.models.unit_models.pressure_changer:ThermodynamicAssumption",
     },
     "idaes.power_generation.flowsheets.supercritical_steam_cycle": {
         "create_stream_table_dataframe": "idaes.core.util.tables:create_stream_table_dataframe",
     },
     "idaes.power_generation.flowsheets.supercritical_steam_cycle.supercritical_steam_cycle": {
-        "HeatExchanger": "idaes.models.units_models:HeatExchanger",
+        "HeatExchanger": "idaes.models.unit_models:HeatExchanger",
         "create_stream_table_dataframe": "idaes.core.util.tables:create_stream_table_dataframe",
-        "ThermodynamicAssumption": "idaes.models.until_models.pressure_changer:ThermodynamicAssumption",
+        "ThermodynamicAssumption": "idaes.models.unit_models.pressure_changer:ThermodynamicAssumption",
     },
     "idaes.power_generation.properties.natural_gas_PR": {
         "fugacity": "idaes.models.properties.modular_properties.phase_equil.forms:fugacity",
