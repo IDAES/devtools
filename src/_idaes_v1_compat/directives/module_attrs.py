@@ -21,11 +21,16 @@ core_util = ProxyModuleAttr.for_modules({
         "TagReference": None,
         "copy_port_values": None,
         "svg_tag": None,
+        "svg_tag_new": None,
     },
     "idaes.core.util.config": {
         "list_of_floats": None,
         "list_of_strings": None,
         "list_of_phase_types": None,
+        "PhaseType": "idaes.core.base.phases:PhaseType"
+    },
+    "idaes.core.util.initialization": {
+        "FlowsheetBlock": "idaes.core.base.flowsheet_model:FlowsheetBlock",
     },
     "idaes.core.util.dyn_utils": {
         "is_implicitly_indexed_by": None,
@@ -43,9 +48,10 @@ core_util = ProxyModuleAttr.for_modules({
     "idaes.core.util.expr_doc": {
         "ipython_document_constraints": None,
     },
-    "idaes.core.util.tables": {
-        "tag_state_quantities": None,
-    }
+    "idaes.core.util.testing": {
+        "default_solver": "idaes.core.solvers:get_solver",
+        "get_default_solver": "idaes.core.solvers:get_solver",
+    },
 })
 
 
@@ -470,5 +476,82 @@ helmholtz_iapws95_swco2 = ProxyModuleAttr.for_modules({
 gas_solid_contactors = ProxyModuleAttr.for_modules({
     "idaes.gas_solid_contactors.properties.methane_iron_OC_reduction.gas_phase_thermo": {
         "smooth_max": "idaes.core.util.math:smooth_max",
+    },
+})
+
+
+unused_imports= ProxyModuleAttr.for_modules({
+    "idaes.core.solvers.petsc": {
+        "degrees_of_freedom": "idaes.core.util.model_statistics:degrees_of_freedom",
+        "get_solver": "idaes.core.solvers:get_solver",
+    },
+    "idaes.generic_models.control.controller": {
+        "get_solver": "idaes.core.solvers:get_solver",
+    },
+    "idaes.generic_models.properties.core.eos.ceos": {
+        "LiquidPhase":  "idaes.core:LiquidPhase",
+        "VaporPhase":  "idaes.core:VaporPhase",
+    },
+    "idaes.generic_models.properties.core.eos.eos_base": {
+        "PropertyNotSupportedError": "idaes.core.util.exceptions:PropertyNotSupportedError",
+    },
+    "idaes.generic_models.properties.core.examples.HC_PR_vap": {
+        "LiquidPhase":  "idaes.core:LiquidPhase",
+    },
+    "idaes.generic_models.properties.core.state_definitions.FTPx": {
+        "UserModelError": "idaes.core.util.exceptions:UserModelError",
+    },
+    "idaes.generic_models.properties.cubic_eos.cubic_prop_pack": {
+        "functions_lib": None,
+    },
+    "idaes.generic_models.unit_models.column_models.condenser": {
+        "MomentumBalanceType": "idaes.core:MomentumBalanceType",
+    },
+    "idaes.generic_models.unit_models.column_models.tray_column": {
+        "InitializationError": "idaes.core.util.exceptions:InitializationError",
+    },
+    "idaes.generic_models.unit_models.plug_flow_reactor": {
+        "const": "idaes.core.util.constants:Constants",
+    },
+    "idaes.generic_models.unit_models.valve": {
+        "from_json": "idaes.core.util.model_serializer:from_json",
+        "to_json": "idaes.core.util.model_serializer:to_json",
+        "StoreSpec": "idaes.core.util.model_serializer:StoreSpec",
+        "degrees_of_freedom": "idaes.core.util.model_statistics:degrees_of_freedom",
+    },
+    "idaes.power_generation.flowsheets.supercritical_power_plant.SCPC_full_plant": {
+        "delta_temperature_underwood_callback":
+            "idaes.models.unit_models.heat_exchanger:delta_temperature_underwood_callback",
+        "ThermodynamicAssumption": "idaes.models.unit_models.pressure_changer:ThermodynamicAssumption",
+    },
+    "idaes.power_generation.flowsheets.supercritical_steam_cycle": {
+        "create_stream_table_dataframe": "idaes.core.util.tables:create_stream_table_dataframe",
+    },
+    "idaes.power_generation.flowsheets.supercritical_steam_cycle.supercritical_steam_cycle": {
+        "HeatExchanger": "idaes.models.unit_models:HeatExchanger",
+        "create_stream_table_dataframe": "idaes.core.util.tables:create_stream_table_dataframe",
+        "ThermodynamicAssumption": "idaes.models.unit_models.pressure_changer:ThermodynamicAssumption",
+    },
+    "idaes.power_generation.properties.natural_gas_PR": {
+        "fugacity": "idaes.models.properties.modular_properties.phase_equil.forms:fugacity",
+        "IdealBubbleDew": "idaes.models.properties.modular_properties.phase_equil.bubble_dew:IdealBubbleDew",
+        "Perrys": "idaes.models.properties.modular_properties.pure:Perrys",
+        "GenericReactionParameterBlock":
+            "idaes.models.properties.modular_properties.base.generic_reaction:GenericReactionParameterBlock",
+    },
+    "idaes.power_generation.unit_models.helm.condenser_ntu": {
+        "add_object_reference": "idaes.core.util.misc:add_object_reference",
+    },
+    "idaes.power_generation.unit_models.helm.turbine_outlet": {
+        "degrees_of_freedom": "idaes.core.util.model_statistics:degrees_of_freedom",
+    },
+    "idaes.power_generation.unit_models.helm.turbine_stage": {
+        "from_json": "idaes.core.util.model_serializer:from_json",
+        "to_json": "idaes.core.util.model_serializer:to_json",
+        "StoreSpec": "idaes.core.util.model_serializer:StoreSpec",
+        "degrees_of_freedom": "idaes.core.util.model_statistics:degrees_of_freedom",
+    },
+    "idaes.surrogate.base.surrogate_base": {
+        "compute_fit_metrics": "idaes.core.surrogate.metrics:compute_fit_metrics",
     },
 })
