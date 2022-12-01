@@ -88,6 +88,7 @@ registry.add([
     *module_attrs.util_system,
     *module_attrs.helmholtz_iapws95_swco2,
     *module_attrs.gas_solid_contactors,
+    *module_attrs.unused_imports,
 ])
 
 registry.add([
