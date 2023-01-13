@@ -224,6 +224,34 @@ convergence = ProxyModuleAttr.with_no_replacement({
         "HelmIsentropicTurbine",
         "get_solver",
     ],
+    "idaes.models.convergence.pressure_changer": [
+        "PressureChangerConvergenceEvaluation",
+        "FlowsheetBlock",
+        "PressureChanger",
+        "ThermodynamicAssumption",
+    ],
+    "idaes.models_extra.convergence.compressor": [
+        "HelmIsentropicCompressor",
+        "create_isentropic_compressor",
+        "HelmIsentropicCompressorConvergenceEvaluation",
+        "get_solver",
+    ],
+    "idaes.models_extra.convergence.heater": [
+        "create_model_steady_state",
+        "create_model_dynamic",
+        "HelmValve",
+        "FlowsheetBlock",
+        "MaterialBalanceType",
+        "Heater",
+        "_set_port",
+        "get_solver",
+    ],
+    "idaes.models_extra.convergence.turbine": [
+        "create_isentropic_turbine",
+        "HelmIsentropicTurbineConvergenceEvaluation",
+        "HelmIsentropicTurbine",
+        "get_solver",
+    ],
 })
 
 
