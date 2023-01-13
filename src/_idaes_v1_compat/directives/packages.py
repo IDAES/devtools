@@ -81,13 +81,15 @@ powergen = ProxyModule.from_mapping({
 })
 
 convergence = ProxyModule.from_mapping({
-    "idaes.convergence": "idaes.models.convergence",
+    "idaes.convergence": None,
     "idaes.convergence.power_generation": None,
     "idaes.convergence.power_generation.compressor": None,
     "idaes.convergence.power_generation.heater": None,
     "idaes.convergence.power_generation.turbine": None,
     "idaes.convergence.generic_models": None,
-    "idaes.convergence.generic_models.pressure_changer": "idaes.models.convergence.pressure_changer",
+    "idaes.convergence.generic_models.pressure_changer": None,
+    "idaes.models.convergence": None,
+    "idaes.models_extra.convergence": None,
 })
 
 control = ProxyModule.from_mapping({
