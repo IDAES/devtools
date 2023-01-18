@@ -583,4 +583,8 @@ unused_imports= ProxyModuleAttr.for_modules({
     "idaes.surrogate.base.surrogate_base": {
         "compute_fit_metrics": "idaes.core.surrogate.metrics:compute_fit_metrics",
     },
+    "idaes.commands.util.download_bin": {
+        "_get_platform": None,
+        "_get_release_url_and_checksum": None,
+    }
 })
