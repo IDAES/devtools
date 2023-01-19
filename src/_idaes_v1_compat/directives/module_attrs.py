@@ -449,6 +449,7 @@ core_other = ProxyModuleAttr.for_modules({
     },
     "idaes.core.property_meta": {
         "UnitNames": None,
+        "PropertyMetadata": "idaes.core.base.property_set:PropertyMetadata",
     },
     "idaes.config": {
         "basic_platforms": None,
