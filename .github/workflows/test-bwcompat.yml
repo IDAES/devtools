@@ -61,6 +61,7 @@ jobs:
           - '1.13.0'
           - '2.0.0a3'
           - 'f63b5b3'  # main after merging #1025
+          - 'main'
         collect-ref:
           - '1.13.0'
         registry:

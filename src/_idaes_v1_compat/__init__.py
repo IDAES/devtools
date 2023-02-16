@@ -21,6 +21,9 @@ from .directives import (
 _logger = logging.getLogger(__name__)
 
 
+_VERSION_FOR_DEPRECATION_WARNING = "1.x"
+
+
 @d.get_module_spec.register(type(None))
 def for_none(val, **kwargs):
     return d.get_module_spec("bwcompat.empty")
@@ -32,9 +35,9 @@ def for_none(val, directive, **kwargs):
 
     class _MissingAttrProxy:
         def __getattr__(self, name):
-            deprecation_warning(msg, logger=__name__)
+            deprecation_warning(msg, version=_VERSION_FOR_DEPRECATION_WARNING, logger=__name__)
         def __call__(self, *args, **kwargs):
-            deprecation_warning(msg, logger=__name__)
+            deprecation_warning(msg, version=_VERSION_FOR_DEPRECATION_WARNING, logger=__name__)
 
     return _MissingAttrProxy()
 
@@ -44,7 +47,7 @@ def _(drc: d.ProxyModuleAttr, **kwargs):
     msg = f"{drc.name!r} cannot be imported from module {drc.module!r} anymore. "
     if drc.replacement:
         msg += f"Instead, use {drc.replacement}"
-    deprecation_warning(msg, logger=__name__)
+    deprecation_warning(msg, version=_VERSION_FOR_DEPRECATION_WARNING, logger=__name__)
 
 
 @hooks.on_activation.register
@@ -55,7 +58,7 @@ def _(drc: d.ProxyModule, **kwargs):
     else:
         msg = f"{what} has been removed and no direct replacement is available."
     relevant_frame = inspect.stack()[-1]
-    deprecation_warning(msg, logger=__name__, calling_frame=relevant_frame.frame)
+    deprecation_warning(msg, logger=__name__, version=_VERSION_FOR_DEPRECATION_WARNING, calling_frame=relevant_frame.frame)
 
 
 registry = Registry()
