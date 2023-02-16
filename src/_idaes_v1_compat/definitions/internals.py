@@ -17,7 +17,8 @@ def _process_kwargs_supporting_default(o, kwargs):
     if _default is not None:
         deprecation_warning(
             "The default argument for the ProcessBlock class is deprecated. "
-            "Arguments must now be passed directly as keyword arguments."
+            "Arguments must now be passed directly as keyword arguments.",
+            version="1.13.0",
         )
     _block_data_config_default = _default
     _pyomo_kwargs = {}
@@ -31,7 +32,8 @@ def _process_kwargs_supporting_default(o, kwargs):
         else:
             deprecation_warning(
                 "Do not supply both keyword arguments and the "
-                "'default' argument to ProcessBlock init. Default is deprecated."
+                "'default' argument to ProcessBlock init. Default is deprecated.",
+                version="1.13.0",
             )
     o._block_data_config_default = _block_data_config_default
     return _pyomo_kwargs
