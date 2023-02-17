@@ -92,6 +92,7 @@ registry.add([
     *module_attrs.helmholtz_iapws95_swco2,
     *module_attrs.gas_solid_contactors,
     *module_attrs.unused_imports,
+    d.ProxyModuleAttr("idaes.logger", "IOToLogTread", None),
 ])
 
 registry.add([
